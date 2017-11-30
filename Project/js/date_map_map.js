@@ -11,7 +11,7 @@ function getRaw(rawData){
       //console.log(min);
 
      var m = [80, 80, 80, 80]; // margins
-    var w = 1300- m[1] - m[3]; // width
+    var w = 1200- m[1] - m[3]; // width
     var h = 500 - m[0] - m[2]; // height
     var x = d3.scale.linear().domain([0, data.length]).range([0, w]);
 

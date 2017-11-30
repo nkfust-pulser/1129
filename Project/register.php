@@ -285,4 +285,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     });
   </script>
 
+<?php
+mysqli_close($link);
+?>
   </html>

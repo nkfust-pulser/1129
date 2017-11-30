@@ -10,9 +10,7 @@
 	font-size:19px;
 	color:#fff;
 }
-.navbar-nav li a span{
 
-}
 .navbar-nav li a:hover{
 	background-color: #fff;
 	color: #000;
@@ -23,7 +21,6 @@
 }
 
 .topbar{
-	padding-right: 0px;
 	padding-left: 0px;
 	background-color: #110f0f;
 	margin-bottom: 0px;

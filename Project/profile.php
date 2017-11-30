@@ -381,7 +381,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                   <option value="男性" <?php if($_SESSION['user_sex']  == '男性'): ?> selected="selected"<?php endif; ?>>男性</option>
                   <option value="女性" <?php if($_SESSION['user_sex']  == '女性'): ?> selected="selected"<?php endif; ?>>女性</option>
                   <option value="其他" <?php if($_SESSION['user_sex']  == '其他'): ?> selected="selected"<?php endif; ?>>其他</option>
-
                 </select>
                 <span class="help-block"><?php echo $user_sex_err; ?></span>
               </div>
@@ -441,5 +440,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
   };
 </script>
 
+<?php
+mysqli_close($link);
+?>
 
 </html>

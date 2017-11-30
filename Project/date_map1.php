@@ -1,33 +1,14 @@
 <?php
-include("user-profile-information.php");
-?>
-<?php
-
-if($_SERVER["REQUEST_METHOD"] == "GET"){
-    $map = $date = $hour = $minute = "";
-    if(isset($_GET["which_date"]) && isset($_GET["which_hour"])&& isset($_GET["which_minute"])){
-        $date = $_GET["which_date"];
-        $hour = $_GET["which_hour"];
-        $minute = $_GET["which_minute"];
-
-        $tempDate = $date;
-        $python = "D:\\Python36\\python.exe";
-        $pythonscript = "C:\\xampp\\htdocs\\Project\\python\\ff3-4.py";
-        $tempString = explode("-",$tempDate);
-
-        $tempHour = $hour;
-        if((int)$hour < 10 )
-            $hour = '0'.$hour;
-        if((int)$minute < 10)
-            $minute = '0'.$minute;
-
-        $item = $tempString[0].$tempString[1].$tempString[2].'-'.$hour.$minute.'-'.$row["userid"];
-        echo ("$item");
-        $cmd = exec("$python pythonscript $item");
-        echo ("$cmd");
-    }
+session_start();
+if(empty($_SESSION['login_userid'])){
+  session_destroy();
+  header('Location:login.php');
+  exit(); 
 }
+require_once('connect_members.php');
+
 ?>
+
 <html lang="en">
 
 <head>
@@ -38,10 +19,9 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
     <script type="text/javascript" src="https://code.jquery.com/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     
@@ -98,8 +78,8 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
             <div class="container-fluid topbar">
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href=""><span class="glyphicon glyphicon-bell"></span>提醒</a></li>
-                    <li><a href="config5.php"><span class="glyphicon glyphicon-user"></span><?php echo $row["user_email"]?></a></li>
-                    <li><a href="logout.php"><span class="glyphicon glyphicon-log-in logout_span"></span></a></li>
+                    <li><a href="profile.php"><span class="glyphicon glyphicon-user"></span><?php echo($_SESSION['login_userid']);?></a></li>
+                    <li><a href="logout.php"><span id="logout_span" class="glyphicon glyphicon-log-in logout_span"></span></a></li>
                 </ul>
             </div>
         </div>
@@ -120,16 +100,15 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
                 </div>
                 <div class="clearfix"></div>
                 <div class="text-center">
-                 <ol class="breadcrumb">
-                  <li><span class="glyphicon glyphicon-calendar"></span><label id="DATE"></label></li>
-                  <li><span class="glyphicon glyphicon-remove" id ="device_sign"></span><label>無配對使用裝置</label></li>
-              </ol>
+                   <ol class="breadcrumb">
+                      <li><span class="glyphicon glyphicon-calendar"></span><label id="DATE"></label></li>
+                      <li><span class="glyphicon glyphicon-remove" id ="device_sign"></span><label>無配對使用裝置</label></li>
+                  </ol>
+              </div>
           </div>
-      </div>
-      <!--date_map_page-content-->
-      <div class="date_map_page-content text-center">
-        <!--beginning of date and pick div-->
-        <form method="get" action="fromPython.php">
+          <!--date_map_page-content-->
+          <div class="date_map_page-content text-center">
+            <!--beginning of date and pick div-->
             <div class="map_and_datepicker">
                 <!--map_and_datepicker_padding-->
                 <div class="map_and_datepicker_padding text-left">
@@ -137,11 +116,10 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
                     <div>
                         <div class="date_map_select">
                             <label>選擇圖型:</label>
-                            <select id="map_select" name="which_map">
-                              <option value="raw" <?php if("raw" == $map) echo "selected = 'selected'"?>>原始圖型</option>
-                              <option value="fft" <?php if("fft" == $map) echo "selected = 'selected'"?>>FFT圖型</option>
-                              <option value="fft_30" 
-                              <?php if("fft_30" == $map) echo "selected = 'selected'"?>>FFT-30圖型</option>
+                            <select id='map_select'>
+                              <option value="raw">原始圖型</option>
+                              <option value="fft">FFT圖型</option>
+                              <option value="fft_30">FFT-30圖型</option>
                           </select>
                           <div></div>
                       </div>
@@ -151,65 +129,44 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
                   <!--datepicker-->
                   <div>
                     <div class="date_map_input_datepicker">
-                        <label>選擇日期:</label>
-                        <input id="thedate" type="text" class="datepicker_input_text" name="which_date" 
-                        value="<?php echo $date?>">
-                        <span class="glyphicon glyphicon-calendar"></span>
+                        <label>選擇時間:</label>
+                        <select id = "time_select">
+                        </select>
                     </div>
                 </div>
                 <!--datepicker-->
                 <div class="date_map_space"></div>
                 <!--time-->
-                <div>
-                    <div class="timepicker">
-                        <label id="title">選擇時間:</label>
-                        <select id="timepicker_select_hour" name = "which_hour">
-                            <option <?php if($hour == $hour) echo "selected = 'selected'"?>><?php echo $hour?></option>
-                        </select>
-                        <label id="timepicker_hour">時</label>
-                        <select id ="timepicker_select_minute" name ="which_minute">
-                            <option 
-                            <?php if($minute == $minute) echo "selected = 'selected'"?>><?php echo $minute?> 
-                        </option>
-                    </select>
-                    <label id="timepicker_minute">分</label>
-                </div>
+
+                <!--time-->
+                <!--input-button-ok-->
+                <button id="submitData" class="btn submitButton" onclick="change_map()" >確定</button>
+                <!--input-button-ok-->
             </div>
-            <!--time-->
-            <!--input-button-ok-->
-            <div>
-                <div class="input_button_ok">
-                    <div class="text-right input_button_padding">
-                        <input type="submit" value="確認" onclick="myFunction()">
+            <!--map_and_datepicker_padding-->
+        </div>
+        <!--end of date and pick div-->
+        <div id="result"></div>
+        <div class="date_map_space2"></div>
+        <!--beginning of map div-->
+        <div class="map_div">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title map_div_h3">
+                        <i class="fa fa-bar-chart-o fa-fw"></i>
+                        <label id="map_label">原始圖形</label>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div id="graph" class="aGraph">
                     </div>
                 </div>
             </div>
-            <!--input-button-ok-->
-        </div>
-        <!--map_and_datepicker_padding-->
-    </div>
-</form>
-<!--end of date and pick div-->
-<div class="date_map_space2"></div>
-<!--beginning of map div-->
-<div class="map_div">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title map_div_h3">
-                <i class="fa fa-bar-chart-o fa-fw"></i>
-                <label id="map_label">原始圖形</label>
-            </h3>
-        </div>
-        <div class="panel-body">
-            <div id="graph" class="aGraph">
-            </div>
-        </div>
-    </div>
 
-</div>
-<!--end of map div-->
-</div>
-<!--date_map_page-content-->
+        </div>
+        <!--end of map div-->
+    </div>
+    <!--date_map_page-content-->
 </div>
 <!-- area_select_date_and_map -->
 
@@ -217,25 +174,47 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
 <!-- area_page_wrapper -->
 
 </body>
-
-<script type='text/javascript' src='//code.jquery.com/jquery-2.0.2.js'></script>                       
-<script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/nonemap.js"></script>
-<script src="js/date_map_map.js"></script>
-<script src="js/datepicker.js"></script>
 <script src="js/today_date.js"></script>
-
+<script src="js/date_map_map.js"></script>
+<script>
+    $(document).ready(function(){
+        $.ajax({
+            type: 'GET',
+            url: 'test2.php',
+            dataType: "json",  
+            success: function(data) {
+                loaddata(data);
+            },
+            error: function() {
+                alert("ERROR");
+            }
+        });
+    });
+    
+    
+    function loaddata(d){
+        var r = document.getElementById('time_select');
+        var array1 = d;
+        var t;
+        for(t=0;t<array1.length;t++){
+            var option = document.createElement("option");
+            option.value = array1[t];
+            option.text = array1[t];
+            r.appendChild(option);
+        }
+    }
+</script>
 
 <script type='text/javascript'>
-
-    function myfuction(){
-
-        d3.select("svg").remove();
-        var x = document.getElementById("map_select").value;
+    function change_map()
+    {
+        var x = document.getElementById('map_select').value;
         if(x == 'raw'){
-            x = "原始圖型";
+            d3.select("svg").remove();
+            x = '原始圖型';
             $.ajax({
                 type: 'GET',
                 url: 'fromPython.php',
@@ -250,6 +229,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
         }
         else if(x == 'fft')
         {
+            d3.select("svg").remove();
             x = "FFT圖型";
             $.ajax({
                 type: 'GET',
@@ -264,6 +244,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
             });
         }
         else{
+            d3.select("svg").remove();
             x = "FFT-30圖型";
             $.ajax({
                 type: 'GET',
@@ -278,37 +259,17 @@ if($_SERVER["REQUEST_METHOD"] == "GET"){
             });
         }
         document.getElementById("map_label").innerHTML = x;
-
     }
+
 </script>
-<script>
-    $(document).ready(function(){
-        var select_hour = document.getElementById("timepicker_select_hour");
-        var n=1;
-        for(n=1;n<=24;n++)
-        {
-            if(n<10)
-            {
-                var h = '0'+n;
-                select_hour.options[select_hour.options.length] = new Option(h, n);
-            }
-            else{
-                select_hour.options[select_hour.options.length] = new Option(n, n);
-            }
-        }
-        var select_minute = document.getElementById("timepicker_select_minute");
-        for(n=0;n<=60;n++)
-        {
-            if(n<10)
-            {
-                var m = '0'+n;
-                select_minute.options[select_minute.options.length] = new Option(m, n);
-            }
-            else{
-                select_minute.options[select_minute.options.length] = new Option(n, n);
-            }
-        }
+
+<script type="text/javascript">
+    $("#submitData").click(function(){
+    var txt = document.getElementById('time_select').value;
+    $.post("fromPython2.php",  {suggest: txt} ,function(data){
+        console.log(txt);
     });
+});
 </script>
 
 <?php

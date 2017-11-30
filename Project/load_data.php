@@ -32,3 +32,7 @@ if($stmt = mysqli_prepare($link, $sql)){
 mysqli_stmt_close($stmt);
 
 ?>
+
+<?php
+mysqli_close($link);
+?>

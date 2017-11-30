@@ -334,5 +334,9 @@ $_SESSION['which_file'] = $last_filename3;
     <script src="js/12_peaks_table.js"></script>
 
 </body>
+
+<?php
+mysqli_close($link);
+?>
 </html>
 
